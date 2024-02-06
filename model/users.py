@@ -20,16 +20,24 @@ class User(db.Model):
     _name = db.Column(db.String(255), unique=False, nullable=False)
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
+    _role = db.Column(db.String(255))
     
     # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty"):
+    def __init__(self, name, uid, password="123qwerty", role="default"):
         self._name = name    # variables with self prefix become part of the object, 
         self._uid = uid
         self.set_password(password)
+        self._role = role
 
     # a name getter method, extracts name from object
+    @property
+    def role(self):
+        return self._role
+    @role.setter
+    def role(self, role):
+        self._role = role
     @property
     def name(self):
         return self._name
@@ -69,11 +77,6 @@ class User(db.Model):
         return result
     
     # dob property is returned as string, to avoid unfriendly outcomes
-    
-    @property
-    def age(self):
-        today = date.today()
-        return today.year - self._dob.year - ((today.month, today.day) < (self._dob.month, self._dob.day))
 
     
     # output content using str(object) in human readable form, uses getter
@@ -100,11 +103,12 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "uid": self.uid,
+            "role": self.role
         }
 
     # CRUD update: updates user name, password, phone
     # returns self
-    def update(self, name="", uid="", password=""):
+    def update(self, name="", uid="", password="", role="default"):
         """only updates values with length"""
         if len(name) > 0:
             self.name = name
@@ -112,6 +116,8 @@ class User(db.Model):
             self.uid = uid
         if len(password) > 0:
             self.set_password(password)
+        if len(role) > 0:
+            self.role = role
         db.session.commit()
         return self
 
@@ -136,7 +142,8 @@ def initUsers():
         u2 = User(name='Nicholas Tesla', uid='niko', password='123niko')
         u3 = User(name='Alexander Graham Bell', uid='lex')
         u4 = User(name='Grace Hopper', uid='hop', password='123hop')
-        users = [u1, u2, u3, u4]
+        u5 = User(name='Admin', uid='root', password='root', role="admin")
+        users = [u1, u2, u3, u4, u5]
 
         """Builds sample user/note(s) data"""
         for user in users:

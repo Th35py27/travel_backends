@@ -1,5 +1,5 @@
 import json, jwt
-from flask import Blueprint, request, jsonify, current_app, Response, make_response
+from flask import Flask, Blueprint, request, jsonify, current_app, Response, make_response
 from flask_restful import Api, Resource # used for REST API building
 from datetime import datetime
 from auth_middleware import token_required
@@ -22,7 +22,7 @@ class UserAPI:
             # validate name
             name = body.get('name')
             if name is None or len(name) < 2:
-                return {'message': f'Name is missing, or is less than 2 characters'}, 400
+                return {'message': f'Name is missing, or is less than 2     acters'}, 400
             # validate uid
             uid = body.get('uid')
             if uid is None or len(uid) < 2:
@@ -103,17 +103,9 @@ class UserAPI:
                             current_app.config["SECRET_KEY"],
                             algorithm="HS256"
                         )
-                        print(token)
                         resp = Response("Authentication for %s successful" % (user._uid))
-                        resp.set_cookie("jwt", token,
-                                max_age=3600,
-                                secure=True,
-                                httponly=True,
-                                path='/',
-                                samesite='None'  # This is the key part for cross-site requests
-
-                                # domain="frontend.com"
-                                )
+                        resp.set_cookie(key="jwt", value=token, max_age=3600, secure=False, samesite='None', path='/', httponly=False)
+                        print(resp.headers)
                         return resp
                     except Exception as e:
                         return {

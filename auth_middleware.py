@@ -3,7 +3,6 @@ import jwt
 from flask import request, abort
 from flask import current_app
 from model.users import User
-
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -17,9 +16,9 @@ def token_required(f):
         try:
             data=jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
             current_user=User.query.filter_by(_uid=data["_uid"]).first()
-            if current_user is None:
+            if current_user is None or current_user.role != "admin":
                 return {
-                "message": "Invalid Authentication token!",
+                "message": "No authorization.",
                 "data": None,
                 "error": "Unauthorized"
             }, 401
