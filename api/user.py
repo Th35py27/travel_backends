@@ -1,9 +1,8 @@
 import json, jwt
-from flask import Blueprint, request, jsonify, current_app, Response
+from flask import Blueprint, request, jsonify, current_app, Response, make_response
 from flask_restful import Api, Resource # used for REST API building
 from datetime import datetime
 from auth_middleware import token_required
-
 from model.users import User
 
 user_api = Blueprint('user_api', __name__,
@@ -14,11 +13,11 @@ api = Api(user_api)
 
 class UserAPI:        
     class _CRUD(Resource):  # User API operation for Create, Read.  THe Update, Delete methods need to be implemeented
-        @token_required
-        def post(self, current_user): # Create method
+        #@token_required
+        def post(self): # Create method
             ''' Read data for json body '''
             body = request.get_json()
-            
+            print(body)
             ''' Avoid garbage in, error checking '''
             # validate name
             name = body.get('name')
@@ -30,30 +29,22 @@ class UserAPI:
                 return {'message': f'User ID is missing, or is less than 2 characters'}, 400
             # look for password and dob
             password = body.get('password')
-            dob = body.get('dob')
-            favoritefood = body.get('favoritefood')
             ''' #1: Key code block, setup USER OBJECT '''
-            uo = User(name=name, 
-                      uid=uid, favoritefood=favoritefood)
+            uo = User(name=name, uid=uid)
             
             ''' Additional garbage error checking '''
             # set password if provided
             if password is not None:
                 uo.set_password(password)
             # convert to date type
-            if dob is not None:
-                try:
-                    uo.dob = datetime.strptime(dob, '%Y-%m-%d').date()
-                except:
-                    return {'message': f'Date of birth format error {dob}, must be mm-dd-yyyy'}, 400
-            ''' #2: Key Code block to add user to database '''
             # create user in database
             user = uo.create()
             # success returns json of user
             if user:
-                return jsonify(user.read())
+                print(user.read())
+                return ((user.read()), 200)
             # failure returns error
-            return {'message': f'Processed {name}, either a format error or User ID {uid} is duplicate'}, 400
+            return make_response({'message': f'Processed {name}, either a format error or User ID {uid} is duplicate'}, 400)
 
         @token_required
         def get(self, current_user): # Read Method
@@ -75,24 +66,18 @@ class UserAPI:
         def put(self, current_user):
             body = request.get_json() # get the body of the request
             uid = body.get('uid') # get the UID (Know what to reference)
-            dob = body.get('dob')
             name = body.get('name')
-            favoritefood = body.get('favoritefood')
-            if dob is not None:
-                try:
-                    fdob = datetime.strptime(dob, '%Y-%m-%d').date()
-                except:
-                    return {'message': f'Date of birth format error {dob}, must be mm-dd-yyyy'}, 400
             users = User.query.all()
             for user in users:
                 if user.uid == uid:
-                    user.update(name,'','',fdob,favoritefood)
+                    user.update(name,'','')
             return f"{user.read()} Updated"
     
     class _Security(Resource):
         def post(self):
             try:
                 body = request.get_json()
+                print(body)
                 if not body:
                     return {
                         "message": "Please provide user details",
@@ -102,12 +87,14 @@ class UserAPI:
                 ''' Get Data '''
                 uid = body.get('uid')
                 if uid is None:
+                    print("error at uid")
                     return {'message': f'User ID is missing'}, 400
                 password = body.get('password')
                 
                 ''' Find user '''
                 user = User.query.filter_by(_uid=uid).first()
                 if user is None or not user.is_password(password):
+                    print("error at password")
                     return {'message': f"Invalid user id or password"}, 400
                 if user:
                     try:
@@ -116,6 +103,7 @@ class UserAPI:
                             current_app.config["SECRET_KEY"],
                             algorithm="HS256"
                         )
+                        print(token)
                         resp = Response("Authentication for %s successful" % (user._uid))
                         resp.set_cookie("jwt", token,
                                 max_age=3600,
