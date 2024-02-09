@@ -22,7 +22,7 @@ class UserAPI:
             # validate name
             name = body.get('name')
             if name is None or len(name) < 2:
-                return {'message': f'Name is missing, or is less than 2     acters'}, 400
+                return {'message': f'Name is missing, or is less than 2 characters'}, 400
             # validate uid
             uid = body.get('uid')
             if uid is None or len(uid) < 2:
@@ -95,7 +95,7 @@ class UserAPI:
                 user = User.query.filter_by(_uid=uid).first()
                 if user is None or not user.is_password(password):
                     print("error at password")
-                    return {'message': f"Invalid user id or password"}, 400
+                    return {'message': f"Invalid user id or password"}, 401
                 if user:
                     try:
                         token = jwt.encode(
@@ -104,7 +104,7 @@ class UserAPI:
                             algorithm="HS256"
                         )
                         resp = Response("Authentication for %s successful" % (user._uid))
-                        resp.set_cookie(key="jwt", value=token, max_age=3600, secure=False, samesite='None', path='/', httponly=False)
+                        resp.set_cookie(key="jwt", value=token, max_age=3600, secure=True, samesite='None', path='/', httponly=False, domain="127.0.0.1")
                         print(resp.headers)
                         return resp
                     except Exception as e:

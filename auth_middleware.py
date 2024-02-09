@@ -15,7 +15,7 @@ def token_required(f):
             }, 403
         try:
             data=jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-            current_user=User.query.filter_by(_uid=data["_uid"]).first()
+            current_user=User.query.filter_by(_uid=data["_uid"]).first()    
             if current_user is None or current_user.role != "admin":
                 return {
                 "message": "No authorization.",
