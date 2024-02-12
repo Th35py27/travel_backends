@@ -15,13 +15,15 @@ class User(db.Model):
     _name = db.Column(db.String(255), unique=False, nullable=False)
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
+    _image = db.Column(db.String(255), unique=False, nullable=False)
     _role = db.Column(db.String(255))
     # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty", role="default"):
+    def __init__(self, name, uid, password="123qwerty", image='', role="default"):
         self._name = name    # variables with self prefix become part of the object,
         self._uid = uid
         self.set_password(password)
+        self._image = image
         self._role = role
     # a name getter method, extracts name from object
     @property
@@ -30,6 +32,14 @@ class User(db.Model):
     @role.setter
     def role(self, role):
         self._role = role
+    
+    @property
+    def image(self):
+        return self._image
+    @image.setter
+    def image(self, image):
+        self._image = image
+        
     @property
     def name(self):
         return self._name
@@ -83,11 +93,12 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "uid": self.uid,
+            "image": self.image,
             "role": self.role
         }
     # CRUD update: updates user name, password, phone
     # returns self
-    def update(self, name="", uid="", password="", role="default"):
+    def update(self, name="", uid="", password="", image='', role="default"):
         """only updates values with length"""
         if len(name) > 0:
             self.name = name
@@ -97,6 +108,8 @@ class User(db.Model):
             self.set_password(password)
         if len(role) > 0:
             self.role = role
+        if len(image) > 0:
+            self.image = image
         db.session.commit()
         return self
     # CRUD delete: remove self
@@ -114,7 +127,7 @@ def initUsers():
         """Tester data for table"""
         u1 = User(name='Thomas Edison', uid='toby', password='123toby')
         u2 = User(name='Nicholas Tesla', uid='niko', password='123niko')
-        u3 = User(name='Alexander Graham Bell', uid='lex')
+        u3 = User(name='Alexander Graham Bell', uid='lex', password='123bell')
         u4 = User(name='Grace Hopper', uid='hop', password='123hop')
         u5 = User(name='Admin', uid='root', password='root', role="admin")
         users = [u1, u2, u3, u4, u5]
