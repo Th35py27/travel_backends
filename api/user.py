@@ -29,8 +29,10 @@ class UserAPI:
                 return {'message': f'User ID is missing, or is less than 2 characters'}, 400
             # look for password and dob
             password = body.get('password')
+            settings = body.get('settings', {}) # New: Extract settings from request body
+            
             ''' #1: Key code block, setup USER OBJECT '''
-            uo = User(name=name, uid=uid)
+            uo = User(name=name, uid=uid, settings=settings) # New: Pass settings to User constructor
             
             ''' Additional garbage error checking '''
             # set password if provided
@@ -67,10 +69,11 @@ class UserAPI:
             body = request.get_json() # get the body of the request
             uid = body.get('uid') # get the UID (Know what to reference)
             name = body.get('name')
+            settings = body.get('settings', {}) # New: Extract settings from request body
             users = User.query.all()
             for user in users:
                 if user.uid == uid:
-                    user.update(name,'','')
+                    user.update(name,'','', settings=settings) # New: Pass settings to update method
             return f"{user.read()} Updated"
     
     class _Security(Resource):
@@ -124,7 +127,25 @@ class UserAPI:
                         "data": None
                 }, 500
 
-            
+    class _Settings(Resource):
+        @token_required
+        def post(self, current_user):
+            try:
+                # Extract settings data from the request
+                settings = request.json.get('settings')
+
+                # Update the user's settings in the database
+                current_user.update_settings(settings)
+
+                # Update theme_preference if 'theme' is present in settings
+                if 'theme' in settings:
+                    current_user.update_theme_preference(settings['theme'])
+
+                return {'message': 'Settings saved successfully'}, 200
+            except Exception as e:
+                return {'message': str(e)}, 500
+
     # building RESTapi endpoint
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
+    api.add_resource(_Settings, '/api/users/save_settings')
