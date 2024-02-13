@@ -1,7 +1,7 @@
 import threading
 
 # import "packages" from flask
-from flask import render_template,request  # import render_template from "public" flask libraries
+from flask import render_template,request, jsonify  # import render_template from "public" flask libraries
 from flask.cli import AppGroup
 
 
@@ -40,6 +40,20 @@ def index():
 @app.route('/table/')  # connects /stub/ URL to stub() function
 def table():
     return render_template("table.html")
+
+@app.route('/api/users/save_settings', methods=['POST'])  # Define the route for saving settings
+def save_settings():
+    try:
+        # Extract settings data from the request
+        settings = request.json.get('settings')
+
+        # Update the user's settings in the database (replace 'current_user' with your actual user object)
+        # Example: current_user.update_settings(settings)
+        # Make sure to implement this method in your User model
+
+        return jsonify({'message': 'Settings saved successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.before_request
 def before_request():

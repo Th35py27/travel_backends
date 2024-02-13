@@ -1,21 +1,17 @@
 import json, jwt
-from flask import Flask, Blueprint, request, jsonify, current_app, Response, make_response
-from flask_restful import Api, Resource # used for REST API building
-from datetime import datetime
+from flask import Blueprint, request, jsonify, current_app, Response, make_response
+from flask_restful import Api, Resource
 from auth_middleware import token_required
 from model.users import User
+from model.text_upload import TextUpload  # Import your TextUpload model
 
-user_api = Blueprint('user_api', __name__,
-                   url_prefix='/api/users')
-
-# API docs https://flask-restful.readthedocs.io/en/latest/api.html
+user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
 
-class UserAPI:        
-    class _CRUD(Resource):  # User API operation for Create, Read.  THe Update, Delete methods need to be implemeented
-        #@token_required
-        def post(self): # Create method
-            ''' Read data for json body '''
+class UserAPI:
+    class _CRUD(Resource):
+        def post(self):
+            ''' Read data from the json body '''
             body = request.get_json()
             print(body)
             ''' Avoid garbage in, error checking '''
@@ -29,29 +25,30 @@ class UserAPI:
                 return {'message': f'User ID is missing, or is less than 2 characters'}, 400
             # look for password and dob
             password = body.get('password')
+            image = body.get('image')
             ''' #1: Key code block, setup USER OBJECT '''
-            uo = User(name=name, uid=uid)
+            uo = User(name=name, uid=uid, image=image)
             
             ''' Additional garbage error checking '''
             # set password if provided
             if password is not None:
                 uo.set_password(password)
             # convert to date type
-            # create user in database
+            # create user in the database
             user = uo.create()
             # success returns json of user
             if user:
                 print(user.read())
                 return ((user.read()), 200)
             # failure returns error
-            return make_response({'message': f'Processed {name}, either a format error or User ID {uid} is duplicate'}, 400)
+            return {'message': f'Processed {name}, either a format error or User ID {uid} is duplicate'}, 400
 
         @token_required
-        def get(self, current_user): # Read Method
-            users = User.query.all()    # read/extract all users from database
-            json_ready = [user.read() for user in users]  # prepare output in json
-            return jsonify(json_ready)  # jsonify creates Flask response object, more specific to APIs than json.dumps
-        
+        def get(self, current_user):
+            users = User.query.all()
+            json_ready = [user.read() for user in users]
+            return jsonify(json_ready)
+
         @token_required
         def delete(self, current_user):
             body = request.get_json()
@@ -61,18 +58,19 @@ class UserAPI:
                 if user.uid == uid:
                     user.delete()
             return jsonify(user.read())
-        
+
         @token_required
         def put(self, current_user):
-            body = request.get_json() # get the body of the request
-            uid = body.get('uid') # get the UID (Know what to reference)
+            body = request.get_json()
+            uid = body.get('uid')
             name = body.get('name')
+            image = body.get('image')
             users = User.query.all()
             for user in users:
                 if user.uid == uid:
-                    user.update(name,'','')
+                    user.update(name, '', '', image)
             return f"{user.read()} Updated"
-    
+
     class _Security(Resource):
         def post(self):
             try:
@@ -117,6 +115,7 @@ class UserAPI:
                     "data": None,
                     "error": "Unauthorized"
                 }, 404
+
             except Exception as e:
                 return {
                         "message": "Something went wrong!",
@@ -124,7 +123,23 @@ class UserAPI:
                         "data": None
                 }, 500
 
-            
-    # building RESTapi endpoint
+    class _TextUpload(Resource):
+        def post(self):
+            data = request.get_json()
+            text_content = data.get('text_content')
+
+            if not text_content:
+                return {'message': 'Text content is missing'}, 400
+
+            # Assuming you have a TextUpload model with a create method
+            text_upload = TextUpload.create(text_content)
+
+            if text_upload:
+                return jsonify({'message': 'Text uploaded successfully'}), 200
+            else:
+                return {'message': 'Error uploading text'}, 500
+
+    # Register API resources
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
+    api.add_resource(_TextUpload, '/upload/text')
