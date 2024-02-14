@@ -9,6 +9,25 @@ user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
 
 class UserAPI:
+    class _Image(Resource):
+        def get(self):
+            image_data = User.query.with_entities(User._image).all()
+            json_ready = [row[0] for row in image_data]
+            print(json_ready)
+            return jsonify(json_ready)
+        def put(self):
+            body = request.get_json()
+            token = request.cookies.get("jwt")
+            data=jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            image = body.get('image')
+            users = User.query.all()
+            print(data)
+            for user in users:
+                if user.uid == data["_uid"]:    
+                    print(data["_uid"])
+                    user.update("", "", "", user._image + "///" + image)
+                    print(image)
+                    print(user._image)
     class _CRUD(Resource):
         def post(self):
             ''' Read data from the json body '''
@@ -25,9 +44,9 @@ class UserAPI:
                 return {'message': f'User ID is missing, or is less than 2 characters'}, 400
             # look for password and dob
             password = body.get('password')
-            image = body.get('image')
+
             ''' #1: Key code block, setup USER OBJECT '''
-            uo = User(name=name, uid=uid, image=image)
+            uo = User(name=name, uid=uid)
             
             ''' Additional garbage error checking '''
             # set password if provided
@@ -143,3 +162,4 @@ class UserAPI:
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
     api.add_resource(_TextUpload, '/upload/text')
+    api.add_resource(_Image, '/image')
