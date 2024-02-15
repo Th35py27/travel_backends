@@ -3,31 +3,44 @@ from flask import Blueprint, request, jsonify, current_app, Response, make_respo
 from flask_restful import Api, Resource
 from auth_middleware import token_required
 from model.users import User
-from model.text_upload import TextUpload  # Import your TextUpload model
 
 user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
 
 class UserAPI:
-    class _Image(Resource):
+    class _Itinerary(Resource):
+        #retrieving data for all users in database
         def get(self):
-            image_data = User.query.with_entities(User._image).all()
-            json_ready = [row[0] for row in image_data]
-            print(json_ready)
-            return jsonify(json_ready)
+            itinerary = User.query.with_entities(User._itinerary).all()
+            jsonData = [row[0] for row in itinerary]
+            print(jsonData)
+            return jsonify(jsonData)
+                
+        #Itinerary api code
         def put(self):
             body = request.get_json()
             token = request.cookies.get("jwt")
-            data=jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-            image = body.get('image')
+            data = jwt.decode(token, 
+                            current_app.config["SECRET_KEY"], 
+                            algorithms=["HS256"])
+            itinerary = body.get('itinerary')
             users = User.query.all()
-            print(data)
             for user in users:
                 if user.uid == data["_uid"]:    
                     print(data["_uid"])
-                    user.update("", "", "", user._image + "///" + image)
-                    print(image)
-                    print(user._image)
+                    user.update("", "", "", itinerary, "")
+                    print(user._itinerary)
+
+        #Posting itinerary data
+        def post(self):
+            token = request.cookies.get("jwt")
+            data = jwt.decode(token, 
+                            current_app.config["SECRET_KEY"], 
+                            algorithms=["HS256"])
+            users = User.query.all()
+            for user in users:
+                if user.uid == data["_uid"]:    
+                    return user.itinerary
     class _CRUD(Resource):
         def post(self):
             ''' Read data from the json body '''
@@ -142,24 +155,7 @@ class UserAPI:
                         "data": None
                 }, 500
 
-    class _TextUpload(Resource):
-        def post(self):
-            data = request.get_json()
-            text_content = data.get('text_content')
-
-            if not text_content:
-                return {'message': 'Text content is missing'}, 400
-
-            # Assuming you have a TextUpload model with a create method
-            text_upload = TextUpload.create(text_content)
-
-            if text_upload:
-                return jsonify({'message': 'Text uploaded successfully'}), 200
-            else:
-                return {'message': 'Error uploading text'}, 500
-
     # Register API resources
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
-    api.add_resource(_TextUpload, '/upload/text')
-    api.add_resource(_Image, '/image')
+    api.add_resource(_Itinerary, '/itinerary')
