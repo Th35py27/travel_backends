@@ -28,7 +28,7 @@ class UserAPI:
             for user in users:
                 if user.uid == data["_uid"]:    
                     print(data["_uid"])
-                    user.update("", "", "", itinerary, "")
+                    user.update("", "", "", user._itinerary + "///" + itinerary, "")
                     print(user._itinerary)
 
         #Posting itinerary data
@@ -134,7 +134,7 @@ class UserAPI:
                             algorithm="HS256"
                         )
                         resp = Response("Authentication for %s successful" % (user._uid))
-                        resp.set_cookie(key="jwt", value=token, max_age=3600, secure=True, samesite='None', path='/', httponly=False, domain="davidl0914.github.io/frontcasts")
+                        resp.set_cookie(key="jwt", value=token, max_age=3600, secure=True, samesite='None', path='/', httponly=False)
                         print(resp.headers)
                         return resp
                     except Exception as e:

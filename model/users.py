@@ -19,7 +19,7 @@ class User(db.Model):
     _role = db.Column(db.String(255))
     # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty", itinerary='.', role="User"):
+    def __init__(self, name, uid, password="123qwerty", itinerary='.', role="user"):
         self._name = name    # variables with self prefix become part of the object,
         self._uid = uid
         self.set_password(password)
@@ -98,7 +98,7 @@ class User(db.Model):
         }
     # CRUD update: updates user name, password, phone
     # returns self
-    def update(self, name="", uid="", password="", itinerary='', role="User"):
+    def update(self, name="", uid="", password="", itinerary='', role="user"):
         """only updates values with length"""
         if len(name) > 0:
             self.name = name
