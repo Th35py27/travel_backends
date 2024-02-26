@@ -11,31 +11,11 @@ activity_api = Blueprint('activity_api', __name__,
 api = Api(activity_api)
 
 class ActivityAPI:     
-    class Action(Resource):
+    class _Read(Resource):
         def get(self):
-            # Querying the database to retrieve all rows and specified columns
-            data = Activity.query.with_entities(
-                Activity.activity,
-                Activity.family,
-                Activity.adult,
-                Activity.indoors,
-                Activity.outdoors
-            ).all()
-
-            # Transforming the query result into a list of dictionaries
-            result = [
-                {
-                    "activity": row.activity,
-                    "family": row.family,
-                    "adult": row.adult,
-                    "indoors": row.indoors,
-                    "outdoors": row.outdoors
-                }
-                for row in data
-            ]
-
-            return jsonify(result)
-
+            activities = Activity.query.all()
+            json_ready = [activity.read() for activity in activities]
+            return jsonify(json_ready)
 
     # building RESTapi endpoint, method distinguishes action
-    api.add_resource(Action, '/')
+    api.add_resource(_Read, '/')

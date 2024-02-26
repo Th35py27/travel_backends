@@ -15,26 +15,26 @@ class Activity(db.Model):
     __tablename__ = 'activities'
 
     id = db.Column(db.Integer, primary_key=True)
-    _activities = db.Column(db.String(255), unique=False, nullable=False)
+    _name = db.Column(db.String(255), unique=False, nullable=False)
     _family = db.Column(db.Boolean, nullable=False)
     _adult = db.Column(db.Boolean, nullable=False)
     _indoors = db.Column(db.Boolean, nullable=False)
     _outdoors = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, activities, family, adult, indoors, outdoors):
-        self._activities = activities
+    def __init__(self, name, family, adult, indoors, outdoors):
+        self._name = name
         self._family = family
         self._adult = adult
         self._indoors = indoors
         self._outdoors = outdoors
 
     @property
-    def activities(self):
-        return self._activities
+    def name(self):
+        return self._name
     
-    @activities.setter
-    def activities(self, activities):
-        self._activities = activities
+    @name.setter
+    def name(self, name):
+        self._name = name
     
     @property
     def family(self):
@@ -83,7 +83,7 @@ class Activity(db.Model):
     def read(self):
         return {
             "id": self.id,
-            "activities": self.activities,
+            "name": self.name,
             "family": self.family,
             "adult": self.adult,
             "indoors": self.indoors,
@@ -94,20 +94,20 @@ def initActivities():
     with app.app_context():
         db.create_all()
         activities = [
-            Activity(activities='San Diego Zoo', family=True, adult=True, indoors=False, outdoors=True),
-            Activity(activities='San Diego Safari Park', family=True, adult=True, indoors=False, outdoors=True),
-            Activity(activities='Sea World', family=True, adult=True, indoors=False, outdoors=True),
-            Activity(activities='La Jolla Beach', family=True, adult=True, indoors=False, outdoors=True),
-            Activity(activities='Torrey Pines Beach', family=True, adult=True, indoors=False, outdoors=True),
-            Activity(activities='Balboa Park', family=True, adult=True, indoors=True, outdoors=True),
-            Activity(activities='Old Town San Diego State Historic Park', family=True, adult=True, indoors=True, outdoors=True),
-            Activity(activities='USS Midway Museum', family=True, adult=True, indoors=True, outdoors=False),
-            Activity(activities='San Diego Museum of Art', family=True, adult=True, indoors=True, outdoors=False),
-            Activity(activities='San Diego Air & Space Museum', family=True, adult=True, indoors=True, outdoors=False),
-            Activity(activities='Gaslamp Quarter', family=False, adult=True, indoors=True, outdoors=True),
-            Activity(activities='San Diego Childrens Discovery Museum', family=True, adult=False, indoors=True, outdoors=False),
-            Activity(activities='Birch Aquarium at Scripps', family=True, adult=True, indoors=True, outdoors=False),
-            Activity(activities='San Diego Natural History Museum', family=True, adult=True, indoors=True, outdoors=False),
+            Activity(name='San Diego Zoo', family=True, adult=True, indoors=False, outdoors=True),
+            Activity(name='San Diego Safari Park', family=True, adult=True, indoors=False, outdoors=True),
+            Activity(name='Sea World', family=True, adult=True, indoors=False, outdoors=True),
+            Activity(name='La Jolla Beach', family=True, adult=True, indoors=False, outdoors=True),
+            Activity(name='Torrey Pines Beach', family=True, adult=True, indoors=False, outdoors=True),
+            Activity(name='Balboa Park', family=True, adult=True, indoors=True, outdoors=True),
+            Activity(name='Old Town San Diego State Historic Park', family=True, adult=True, indoors=True, outdoors=True),
+            Activity(name='USS Midway Museum', family=True, adult=True, indoors=True, outdoors=False),
+            Activity(name='San Diego Museum of Art', family=True, adult=True, indoors=True, outdoors=False),
+            Activity(name='San Diego Air & Space Museum', family=True, adult=True, indoors=True, outdoors=False),
+            Activity(name='Gaslamp Quarter', family=False, adult=True, indoors=True, outdoors=True),
+            Activity(name='San Diego Childrens Discovery Museum', family=True, adult=False, indoors=True, outdoors=False),
+            Activity(name='Birch Aquarium at Scripps', family=True, adult=True, indoors=True, outdoors=False),
+            Activity(name='San Diego Natural History Museum', family=True, adult=True, indoors=True, outdoors=False),
         ]
         for activity in activities:
             try:
