@@ -11,9 +11,15 @@ class UserAPI:
     class _Itinerary(Resource):
         #retrieving data for all users in database
         def get(self):
-            itinerary = User.query.with_entities(User._itinerary).all()
-            jsonData = [row[0] for row in itinerary]
-            print(jsonData)
+            token = request.cookies.get("jwt")
+            data = jwt.decode(token, 
+                            current_app.config["SECRET_KEY"], 
+                            algorithms=["HS256"])
+            users = User.query.all()
+            for user in users:
+                if user.uid == data["_uid"]:    
+                    jsonData = user.itinerary
+                    print(jsonData)
             return jsonify(jsonData)
                 
         #Itinerary api code

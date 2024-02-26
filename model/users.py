@@ -15,11 +15,11 @@ class User(db.Model):
     _name = db.Column(db.String(255), unique=False, nullable=False)
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
-    _itinerary = db.Column(db.String(255), unique=False, nullable=False)
-    _role = db.Column(db.String(255))
+    _itinerary = db.Column(db.String(255))
+    _role = db.Column(db.String(255), unique=False, nullable=False)
     # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty", itinerary='.', role="user"):
+    def __init__(self, name, uid, password="123qwerty", itinerary='', role="user"):
         self._name = name    # variables with self prefix become part of the object,
         self._uid = uid
         self.set_password(password)
