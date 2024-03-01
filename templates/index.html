@@ -5,6 +5,43 @@
 
 {% block body %}
 
-<p>Backcasts Backend Page</p>
+<div class="px-5 py-5 mx-auto">
+    <h1 class="text-white"><strong>San Diego Travel Backend</strong></h1>
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <img class="card-img-top" src="https://files.catbox.moe/1m85ow.png" alt="Itinerary" height="250">
+                <div class="card-body">
+                <h5 class="card-title">Feature 1: Itinerary</h5>
+                <p class="card-text">
+                    <ol>
+                        <p>How does one plan a trip to San Diego? With our cool feature, you can continuously add some cool activities into your itinerary! Once you click the submit button, the text you input into the box will then be sent into the backend! Do it over and over again to create a fully functioning itinerary! If you wanna see the rest of your itinerary, click load itinerary! Have fun!<p>
+                    </ol>
+                </p>
+                <a href="http://127.0.0.1:4200/travel_project/itinerary" class="btn btn-primary">Itinerary</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <img class="card-img-top" src="{{ url_for('static', filename='assets/flask.png') }}" alt="Flask Development" height="250">
+                <div class="card-body">
+                <h5 class="card-title">Feature 2: Activities</h5>
+                <p class="card-text">
+                    <ol>
+                        <li>Flask Framework is the popular Web Application development framework of Python.</li>
+                        <li>Blueprint is utility to help abstract complexity, moving information in independent files and directories.</li>
+                        <li>HTML using Bootstrap is a great way to build interesting pages and reduce CSS</li>
+                        <li>Jinja2 is a server-side Python like template engine, supports HTML5 web development, and provides full integration with Flask.</li>
+                    </ol>
+                </p>
+                <a href="/binary" class="btn btn-primary">Binary Game</a>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+    </div>
+</div>
 
 {% endblock %}
